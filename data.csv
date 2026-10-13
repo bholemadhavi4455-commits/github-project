@@ -1,0 +1,29 @@
+import sqlite3
+
+DB = "brainwave.db"
+
+def get_db():
+    conn = sqlite3.connect(DB)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_db()
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS users (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT    UNIQUE NOT NULL,
+            email    TEXT    UNIQUE NOT NULL,
+            password TEXT    NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS history (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id    INTEGER NOT NULL,
+            topic      TEXT    NOT NULL,
+            notes      TEXT    NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    """)
+    conn.commit()
+    conn.close()
